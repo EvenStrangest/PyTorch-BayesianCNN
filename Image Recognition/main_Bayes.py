@@ -24,7 +24,7 @@ from torch.autograd import Variable
 
 import bayesian_config as cf
 
-from utils.BBBlayers import GaussianVariationalInference
+# from utils.BBBlayers import GaussianVariationalInference
 from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
 from utils.BayesianModels.BayesianAlexNet import BBBAlexNet
 from utils.BayesianModels.BayesianLeNet import BBBLeNet
@@ -48,9 +48,11 @@ args = parser.parse_args()
 
 # Hyper Parameter settings
 use_cuda = torch.cuda.is_available()
-torch.cuda.set_device(0)
+if use_cuda:
+    torch.cuda.set_device(0)
+
 best_acc = 0
-resize=32
+resize = 32
 
 # Data Uplaod
 print('\n[Phase 1] : Data Preparation')
@@ -215,9 +217,9 @@ def test(epoch):
         else:
             beta = 0
 
-        loss = vi(outputs,y,kl,beta)
+        # loss = vi(outputs, y, kl, beta)
 
-        test_loss += loss.data[0]
+        # test_loss += loss.data[0]
         _, predicted = torch.max(outputs.data, 1)
         preds = F.softmax(outputs, dim=1)
         #print(preds)
@@ -230,10 +232,10 @@ def test(epoch):
 
     # Save checkpoint when best model
     #print (conf)
-    p_hat=np.array(conf)
+    p_hat = np.array(conf)
     #print (p_hat)
-    confidence_mean=np.mean(p_hat, axis=0)
-    confidence_var=np.var(p_hat, axis=0)
+    confidence_mean = np.mean(p_hat, axis=0)
+    confidence_var = np.var(p_hat, axis=0)
     epistemic = np.mean(p_hat ** 2, axis=0) - np.mean(p_hat, axis=0) ** 2
     aleatoric = np.mean(p_hat * (1 - p_hat), axis=0)
 
@@ -267,7 +269,7 @@ def test(epoch):
     if acc > best_acc:
         print('| Saving Best model...\t\t\tTop1 = %.2f%%' %(acc))
         state = {
-                'net':net if use_cuda else net,
+                'net':net,
                 'acc':acc,
                 'epoch':epoch,
         }
